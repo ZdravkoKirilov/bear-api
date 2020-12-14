@@ -51,25 +51,38 @@ const randomFailure = () => {
   return random === 1;
 };
 
+const generateRandomDelay = () => {
+  const random = Math.floor(Math.random() * 5);
+  return [100, 300, 600, 1100, 2000][random];
+};
+
 app.get('/', (req, res) => {
   return res.send('Hello world');
 });
 
 app.get('/bears', (req, res) => {
   const leanBears = bears.map(bear => lodash.omit(bear, ['latinName', 'habitat']));
-  return randomFailure() ? res.status(500).send('Unexpected error') : res.json(leanBears);
+  const randomDelay = generateRandomDelay();
+
+  setTimeout(() => {
+    return randomFailure() ? res.status(500).send('Unexpected error') : res.json(leanBears);
+  }, randomDelay);
+
 });
 
 app.get('/bears/:bearId', (req, res) => {
   const bearId = Number(req.params.bearId);
-
+  const randomDelay = generateRandomDelay();
   const bear = bears.find(bear => bear.id === bearId);
 
-  if (bear) {
-    return randomFailure() ? res.status(500).send('Unexpected error') : res.json(bear);
-  }
+  setTimeout(() => {
+    if (bear) {
+      return randomFailure() ? res.status(500).send('Unexpected error') : res.json(bear);
+    }
 
-  return res.status(404).send('Bear not found');
+    return res.status(404).send('Bear not found');
+  }, randomDelay);
+  
 });
 
 app.listen(8080, () =>
